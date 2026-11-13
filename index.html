@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bethel TV</title>
+<style>
+html{font-size:calc(11px + 0.8vw)}
+*{box-sizing:border-box}
+body{margin:0;background:#0f0d19;color:#fff;font-family:Arial,Helvetica,sans-serif;min-height:100vh}
+#franja{height:6px;background:#8D67E2}
+header{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 3rem 0 3rem;flex-wrap:wrap}
+.marca{font-size:1.6rem;font-weight:bold;margin-right:2rem}
+nav button,.btn{font-family:inherit;font-size:1rem;font-weight:bold;color:#d0c8e6;background:#1e1730;border:3px solid transparent;border-radius:2rem;padding:.6rem 1.4rem;margin:.3rem .5rem .3rem 0;cursor:pointer}
+nav button.activo{background:#8D67E2;color:#fff}
+nav button:focus,.btn:focus,.item:focus,#btnActivar:focus{outline:none;border-color:#fff}
+main{padding:2rem 3rem}
+.vista{display:none}
+.vista.visible{display:block}
+.vacio{text-align:center;color:#d0c8e6;font-size:1.3rem;margin-top:5rem;line-height:1.5}
+.fila{display:flex;align-items:center}
+#portada{width:30vw;max-width:520px;min-width:200px;aspect-ratio:1/1;height:auto;border-radius:1rem;background:#2a2040;object-fit:cover;flex:none}
+.datos{margin-left:3rem;min-width:0;flex:1}
+#titulo{font-size:2.2rem;font-weight:bold;line-height:1.2;word-wrap:break-word}
+#artista{font-size:1.4rem;color:#c9b8ff;margin-top:.6rem}
+#estado{font-size:1.1rem;font-weight:bold;color:#ffd54a;margin-top:1.2rem}
+.barra{height:.6rem;background:#2a2040;border-radius:.3rem;margin-top:1.6rem;overflow:hidden}
+#relleno{height:100%;width:0;background:#8D67E2}
+#tiempo{font-size:1rem;color:#b9aee0;margin-top:.5rem}
+.ayuda{font-size:.9rem;color:#8D67E2;margin-top:1.4rem}
+h2{font-size:1.8rem;margin:0 0 1rem 0}
+.item{display:block;width:100%;text-align:left;font-family:inherit;font-size:1.1rem;color:#d0c8e6;background:#1e1730;border:3px solid transparent;border-radius:.8rem;padding:.9rem 1.2rem;margin-bottom:.5rem;cursor:pointer}
+.item b{color:#fff}
+.centro{text-align:center}
+.caja{display:inline-block;background:#1e1730;border-radius:1rem;padding:1rem 3rem;margin:1.5rem 0}
+#codigo{font-size:5rem;font-weight:bold;letter-spacing:.3rem}
+.pasos{max-width:40rem;margin:0 auto;font-size:1.1rem;color:#d0c8e6;line-height:1.5}
+#red{font-size:1.1rem;font-weight:bold;margin-top:1rem}
+#activar{position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(15,13,25,.96);display:none;align-items:center;justify-content:center;text-align:center;z-index:10}
+#activar.visible{display:flex}
+#activar p{font-size:1.4rem;color:#d0c8e6;margin:0 0 1.5rem 0}
+#btnActivar{font-family:inherit;font-size:1.6rem;font-weight:bold;color:#6a3fb5;background:#fff;border:4px solid transparent;border-radius:3rem;padding:1rem 3rem;cursor:pointer}
+@media (max-width:700px){
+ .fila{display:block}
+ .datos{margin:1.5rem 0 0 0}
+ #portada{width:100%;max-width:none}
+ main,header{padding-left:1.2rem;padding-right:1.2rem}
+ #codigo{font-size:3rem}
+}
+</style>
+</head>
+<body>
+<div id="franja"></div>
+<header>
+ <div class="marca">Bethel TV</div>
+ <button type="button" id="btnSonido" class="btn" style="display:none">Activar sonido</button>
+ <nav>
+  <button type="button" data-v="vReproductor" class="activo">Reproductor</button>
+  <button type="button" data-v="vHistorial">Historial</button>
+  <button type="button" data-v="vCodigo">Código de la TV</button>
+ </nav>
+</header>
+<main>
+ <section id="vReproductor" class="vista visible">
+  <div id="vacio" class="vacio">Aún no has enviado ningún tema.<br>Envía uno desde la app Bethel.</div>
+  <div id="reproduciendo" class="fila" style="display:none">
+   <img id="portada" alt="Portada" src="">
+   <div class="datos">
+    <div id="titulo"></div>
+    <div id="artista"></div>
+    <div id="estado"></div>
+    <div class="barra"><div id="relleno"></div></div>
+    <div id="tiempo">0:00 / 0:00</div>
+    <div class="ayuda">Tecla play/pausa del control, o el botón de abajo.</div>
+    <button type="button" id="btnPausa" class="btn">Pausar</button>
+   </div>
+  </div>
+ </section>
+ <section id="vHistorial" class="vista">
+  <h2>Historial</h2>
+  <div id="listaHist"></div>
+ </section>
+ <section id="vCodigo" class="vista centro">
+  <h2>Código de esta TV</h2>
+  <div class="pasos">En Bethel: mantén presionado un tema, toca <b>Enviar a</b>, y en <b>Mi TV</b> escribe este código.</div>
+  <div class="caja"><div id="codigo">------</div></div>
+  <div id="red">Conectando...</div>
+  <div style="margin-top:1.5rem">
+   <button type="button" id="btnAuto" class="btn">Auto-reproducir: Sí</button>
+   <button type="button" id="btnCambiar" class="btn">Cambiar código</button>
+  </div>
+  <div class="ayuda">El código no cambia salvo que toques Cambiar código.</div>
+ </section>
+</main>
+
+<div id="activar">
+ <div>
+  <p>Para que el navegador deje sonar la música,<br>pulsa el botón una sola vez.</p>
+  <button type="button" id="btnActivar">Activar sonido</button>
+ </div>
+</div>
+
+<audio id="audio" preload="auto"></audio>
+
+<script>
+(function () {
+  var DB = "https://loginrkairos-default-rtdb.firebaseio.com";
+  var K_COD = "bethel_tv_web_codigo", K_AUTO = "bethel_tv_web_auto", K_HIST = "bethel_tv_web_hist";
+  var SILENCIO = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=";
+  var PORTADA0 = "data:image/svg+xml;charset=utf-8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect width="600" height="600" fill="#1e1730"/><circle cx="300" cy="300" r="150" fill="#8D67E2"/><text x="300" y="365" font-size="190" text-anchor="middle" fill="#fff" font-family="Arial">&#9835;</text></svg>');
+
+  function ls(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function ss(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function el(id) { return document.getElementById(id); }
+
+  /* ---------- codigo ---------- */
+  function nuevoCodigo() {
+    var letras = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", c = "", i, n;
+    var buf = null;
+    try { buf = new Uint8Array(6); (window.crypto || window.msCrypto).getRandomValues(buf); } catch (e) { buf = null; }
+    for (i = 0; i < 6; i++) {
+      n = buf ? buf[i] : Math.floor(Math.random() * 256);
+      c += letras.charAt(n % letras.length);
+    }
+    ss(K_COD, c);
+    return c;
+  }
+  var codigo = ls(K_COD);
+  if (!codigo || !/^[A-Z0-9]{6}$/.test(codigo)) { codigo = nuevoCodigo(); }
+  function mostrarCodigo() { el("codigo").textContent = codigo.substring(0, 3) + " " + codigo.substring(3); }
+
+  /* ---------- red ---------- */
+  function http(metodo, url, cuerpo, cb) {
+    var x = new XMLHttpRequest();
+    var listo = false;
+    function fin(ok, txt) { if (listo) return; listo = true; cb(ok, txt); }
+    try {
+      x.open(metodo, url, true);
+      x.timeout = 8000;
+      if (cuerpo !== null) { x.setRequestHeader("Content-Type", "application/json"); }
+      x.onload = function () { fin(x.status >= 200 && x.status < 300, x.responseText); };
+      x.onerror = function () { fin(false, ""); };
+      x.ontimeout = function () { fin(false, ""); };
+      x.send(cuerpo);
+    } catch (e) { fin(false, ""); }
+  }
+
+  /* ---------- vistas ---------- */
+  var botonesNav = document.querySelectorAll("nav button");
+  function irA(id) {
+    var vistas = document.querySelectorAll(".vista"), i;
+    for (i = 0; i < vistas.length; i++) { vistas[i].className = "vista" + (vistas[i].id === id ? " visible" : ""); }
+    for (i = 0; i < botonesNav.length; i++) {
+      botonesNav[i].className = botonesNav[i].getAttribute("data-v") === id ? "activo" : "";
+    }
+  }
+  var i0;
+  for (i0 = 0; i0 < botonesNav.length; i0++) {
+    botonesNav[i0].onclick = function () { irA(this.getAttribute("data-v")); };
+  }
+
+  /* ---------- ajustes ---------- */
+  function auto() { return ls(K_AUTO) !== "0"; }
+  function pintarAuto() { el("btnAuto").textContent = "Auto-reproducir: " + (auto() ? "Sí" : "No"); }
+  el("btnAuto").onclick = function () { ss(K_AUTO, auto() ? "0" : "1"); pintarAuto(); };
+  el("btnCambiar").onclick = function () {
+    codigo = nuevoCodigo(); mostrarCodigo();
+    lastId = ""; primera = true;
+    parar();
+    el("reproduciendo").style.display = "none"; el("vacio").style.display = "block";
+    actual = null;
+  };
+
+  /* ---------- historial ---------- */
+  function leerHist() {
+    var h = [];
+    try { h = JSON.parse(ls(K_HIST) || "[]"); } catch (e) { h = []; }
+    return (h && h.length !== undefined) ? h : [];
+  }
+  function agregarHist(c) {
+    var nueva = [{ titulo: c.titulo || "", artista: c.artista || "", urlImg: c.urlImg || "", urlAudio: c.urlAudio }];
+    var viejo = leerHist(), i;
+    for (i = 0; i < viejo.length; i++) {
+      if (viejo[i].urlAudio !== c.urlAudio && nueva.length < 15) { nueva.push(viejo[i]); }
+    }
+    ss(K_HIST, JSON.stringify(nueva));
+    pintarHist();
+  }
+  function pintarHist() {
+    var cont = el("listaHist"), h = leerHist(), i, b;
+    cont.innerHTML = "";
+    if (!h.length) {
+      var v = document.createElement("div"); v.className = "vacio"; v.style.marginTop = "2rem";
+      v.textContent = "Todavía no hay temas en el historial."; cont.appendChild(v); return;
+    }
+    for (i = 0; i < h.length; i++) {
+      b = document.createElement("button"); b.type = "button"; b.className = "item";
+      var t = document.createElement("b"); t.textContent = h[i].titulo;
+      b.appendChild(t);
+      if (h[i].artista) { b.appendChild(document.createTextNode("  -  " + h[i].artista)); }
+      b.onclick = (function (c) { return function () { irA("vReproductor"); reproducir(c); }; })(h[i]);
+      cont.appendChild(b);
+    }
+  }
+
+  /* ---------- reproductor ---------- */
+  var audio = el("audio");
+  var actual = null, sonidoActivo = false, pendiente = null, cambiando = false, ultimoEnvio = 0;
+
+  function fmt(s) {
+    s = Math.floor(s || 0);
+    var m = Math.floor(s / 60), r = s % 60;
+    return m + ":" + (r < 10 ? "0" : "") + r;
+  }
+  function textoEstado(t, color) { el("estado").textContent = t; el("estado").style.color = color || "#ffd54a"; }
+
+  function parar() { try { audio.pause(); } catch (e) {} }
+
+  function reproducir(c) {
+    actual = c;
+    el("vacio").style.display = "none";
+    el("reproduciendo").style.display = "flex";
+    el("titulo").textContent = c.titulo || "";
+    el("artista").textContent = c.artista || "";
+    el("portada").src = c.urlImg ? c.urlImg : PORTADA0;
+    el("relleno").style.width = "0";
+    el("tiempo").textContent = "0:00 / 0:00";
+    textoEstado("Cargando...");
+    if (!sonidoActivo) {
+      pendiente = c;
+      el("activar").className = "visible";
+      return;
+    }
+    cambiando = true;
+    audio.src = c.urlAudio;
+    var p = audio.play();
+    if (p && p.catch) { p.catch(function () { textoEstado("Pulsa Pausar/Reanudar para iniciar"); }); }
+  }
+
+  function alternar() {
+    if (!actual) return;
+    if (audio.paused) { var p = audio.play(); if (p && p.catch) { p.catch(function () {}); } }
+    else { audio.pause(); }
+  }
+  el("btnPausa").onclick = alternar;
+
+  function activarSonido() {
+    if (sonidoActivo) return;
+    sonidoActivo = true;
+    el("activar").className = "";
+    el("btnSonido").style.display = "none";
+    if (pendiente) { var c = pendiente; pendiente = null; reproducir(c); }
+    else {
+      audio.src = SILENCIO;
+      var p = audio.play(); if (p && p.catch) { p.catch(function () {}); }
+    }
+  }
+  el("btnActivar").onclick = activarSonido;
+  el("btnSonido").onclick = activarSonido;
+  document.addEventListener("click", activarSonido);
+
+  /* ---------- aviso del estado a Firebase ---------- */
+  function reportar(estado) {
+    if (!actual) return;
+    var cuerpo = JSON.stringify({
+      estado: estado,
+      seg: Math.floor(Date.now() / 1000),
+      titulo: String(actual.titulo || "").substring(0, 200),
+      artista: String(actual.artista || "").substring(0, 150),
+      urlImg: String(actual.urlImg || "").substring(0, 2000)
+    });
+    ultimoEnvio = Date.now();
+    http("PUT", DB + "/tv_estado/" + codigo + ".json", cuerpo, function () {});
+  }
+
+  audio.addEventListener("playing", function () {
+    if (!actual) return;
+    cambiando = false;
+    textoEstado("Reproduciendo", "#c9b8ff");
+    el("btnPausa").textContent = "Pausar";
+    reportar("playing");
+  });
+  audio.addEventListener("pause", function () {
+    if (!actual || cambiando || audio.ended) return;
+    textoEstado("En pausa");
+    el("btnPausa").textContent = "Reanudar";
+    reportar("paused");
+  });
+  audio.addEventListener("waiting", function () {
+    if (!actual) return;
+    textoEstado("Cargando...");
+    reportar("buffering");
+  });
+  audio.addEventListener("ended", function () {
+    if (!actual) return;
+    textoEstado("Terminó. Envía otro tema desde Bethel", "#b9aee0");
+    el("btnPausa").textContent = "Repetir";
+    reportar("finished");
+  });
+  audio.addEventListener("error", function () {
+    if (!actual || !sonidoActivo || audio.src.indexOf("data:audio") === 0) return;
+    textoEstado("No se pudo reproducir este tema", "#ff4d6d");
+    reportar("error");
+  });
+  audio.addEventListener("timeupdate", function () {
+    if (!actual || !audio.duration || audio.src.indexOf("data:audio") === 0) return;
+    el("relleno").style.width = Math.min(100, (audio.currentTime / audio.duration) * 100) + "%";
+    el("tiempo").textContent = fmt(audio.currentTime) + " / " + fmt(audio.duration);
+  });
+  setInterval(function () {
+    if (actual && !audio.ended && Date.now() - ultimoEnvio >= 15000 && audio.src.indexOf("data:audio") !== 0) {
+      reportar(audio.paused ? "paused" : "playing");
+    }
+  }, 5000);
+
+  /* ---------- recibir temas ---------- */
+  var lastId = "", primera = true;
+  function estadoRed(ok) {
+    var r = el("red");
+    r.textContent = ok ? "Conectada. Esperando un tema desde Bethel..." : "Sin conexión a internet";
+    r.style.color = ok ? "#c9b8ff" : "#ffd54a";
+  }
+  function sondear() {
+    var codigoPedido = codigo;
+    http("GET", DB + "/tv_bethel/" + codigoPedido + ".json", null, function (ok, txt) {
+      if (codigoPedido === codigo) {
+        if (!ok) { estadoRed(false); }
+        else {
+          estadoRed(true);
+          var d = null;
+          try { d = JSON.parse(txt); } catch (e) { d = null; }
+          if (d && d.id && d.urlAudio && d.id !== lastId) {
+            lastId = d.id;
+            var va = true;
+            if (primera && !auto()) {
+              var ahora = Math.floor(Date.now() / 1000);
+              if (!d.seg || ahora - d.seg > 120) { va = false; }
+            }
+            if (va) {
+              var c = { titulo: d.titulo || "", artista: d.artista || "", urlImg: d.urlImg || "", urlAudio: d.urlAudio };
+              agregarHist(c);
+              irA("vReproductor");
+              reproducir(c);
+            }
+          }
+          primera = false;
+        }
+      }
+      setTimeout(sondear, 2000);
+    });
+  }
+
+  /* ---------- teclas del control ---------- */
+  document.addEventListener("keydown", function (e) {
+    var k = e.keyCode;
+    if (k === 179 || k === 415 || k === 19) { alternar(); e.preventDefault(); }
+  });
+
+  mostrarCodigo();
+  pintarAuto();
+  pintarHist();
+  estadoRed(true);
+  el("red").textContent = "Conectando...";
+  el("red").style.color = "#ffd54a";
+  el("btnSonido").style.display = "inline-block";
+  if (!ls(K_HIST)) { irA("vCodigo"); }
+  sondear();
+})();
+</script>
+</body>
+</html>
