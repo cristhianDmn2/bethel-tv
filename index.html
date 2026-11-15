@@ -40,6 +40,29 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
 #activar.visible{display:flex}
 #activar p{font-size:1.4rem;color:#d0c8e6;margin:0 0 1.5rem 0}
 #btnActivar{font-family:inherit;font-size:1.6rem;font-weight:bold;color:#6a3fb5;background:#fff;border:4px solid transparent;border-radius:3rem;padding:1rem 3rem;cursor:pointer}
+.dj-mesa{display:flex;align-items:flex-start;justify-content:space-around}
+.dj-lado{width:38%;text-align:center}
+.dj-nombre{font-size:1.3rem;font-weight:bold;margin-bottom:.8rem}
+.rojo-t{color:#ff6b66}
+.azul-t{color:#5aa9f5}
+.disco{position:relative;width:100%;max-width:30vw;margin:0 auto;aspect-ratio:1/1;border-radius:50%;background:repeating-radial-gradient(circle at center,#0b0b0b 0,#0b0b0b 2px,#1d1d1d 2px,#1d1d1d 4px);border:.6rem solid #555}
+.disco.rojo{border-color:#e53935;box-shadow:0 0 2.2rem rgba(229,57,53,.55)}
+.disco.azul{border-color:#1e88e5;box-shadow:0 0 2.2rem rgba(30,136,229,.55)}
+.disco.sonando{animation:girar 2.4s linear infinite}
+@keyframes girar{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.disco-label{position:absolute;left:31%;top:31%;width:38%;height:38%;border-radius:50%;object-fit:cover;background:#2a2040;border:.25rem solid #111}
+.disco:after{content:"";position:absolute;left:47.5%;top:47.5%;width:5%;height:5%;border-radius:50%;background:#0f0d19}
+.dj-tit{font-size:1.3rem;font-weight:bold;margin-top:1rem;line-height:1.2;word-wrap:break-word}
+.dj-art{font-size:1rem;color:#c9b8ff;margin-top:.3rem;min-height:1.2rem}
+.dj-est{font-size:.95rem;font-weight:bold;color:#ffd54a;margin-top:.5rem;min-height:1.2rem}
+.dj-barra{height:.45rem;background:#2a2040;border-radius:.3rem;margin:.8rem auto 0;width:80%;overflow:hidden}
+.dj-rel{height:100%;width:0}
+.dj-rel.r{background:#e53935}
+.dj-rel.z{background:#1e88e5}
+.dj-centro{width:18%;text-align:center;padding-top:3rem}
+.mezcla{position:relative;height:.5rem;background:linear-gradient(90deg,#e53935,#1e88e5);border-radius:.3rem;margin:1rem 0 1.2rem 0}
+#djMezcla{position:absolute;top:-.5rem;left:50%;width:1.2rem;height:1.5rem;margin-left:-.6rem;background:#fff;border-radius:.3rem}
+.dj-centro .btn{display:block;width:100%;margin:.4rem 0;padding:.5rem .4rem}
 @media (max-width:700px){
  .fila{display:block}
  .datos{margin:1.5rem 0 0 0}
@@ -56,6 +79,7 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
  <button type="button" id="btnSonido" class="btn" style="display:none">Activar sonido</button>
  <nav>
   <button type="button" data-v="vReproductor" class="activo">Reproductor</button>
+  <button type="button" id="navDJ" data-v="vDJ" style="display:none">Mesa DJ</button>
   <button type="button" data-v="vHistorial">Historial</button>
   <button type="button" data-v="vCodigo">Código de la TV</button>
  </nav>
@@ -73,6 +97,35 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
     <div id="tiempo">0:00 / 0:00</div>
     <div class="ayuda">Tecla play/pausa del control, o el botón de abajo.</div>
     <button type="button" id="btnPausa" class="btn">Pausar</button>
+   </div>
+  </div>
+ </section>
+<section id="vDJ" class="vista">
+  <div class="dj-mesa">
+   <div class="dj-lado">
+    <div id="djNomA" class="dj-nombre rojo-t">DJ rojo</div>
+    <div id="discoA" class="disco rojo"><img id="discoImgA" class="disco-label" alt="" src=""></div>
+    <div id="djTitA" class="dj-tit">Esperando tema...</div>
+    <div id="djArtA" class="dj-art"></div>
+    <div id="djEstA" class="dj-est"></div>
+    <div class="dj-barra"><div id="djRelA" class="dj-rel r"></div></div>
+    <button type="button" id="btnPlayA" class="btn" style="margin-top:1rem">Pausar</button>
+   </div>
+   <div class="dj-centro">
+    <div class="dj-art">Mezcla</div>
+    <div class="mezcla"><div id="djMezcla"></div></div>
+    <button type="button" id="btnMezA" class="btn">&#9664; Más rojo</button>
+    <button type="button" id="btnMezC" class="btn">Centro</button>
+    <button type="button" id="btnMezB" class="btn">Más azul &#9654;</button>
+   </div>
+   <div class="dj-lado">
+    <div id="djNomB" class="dj-nombre azul-t">DJ azul</div>
+    <div id="discoB" class="disco azul"><img id="discoImgB" class="disco-label" alt="" src=""></div>
+    <div id="djTitB" class="dj-tit">Esperando tema...</div>
+    <div id="djArtB" class="dj-art"></div>
+    <div id="djEstB" class="dj-est"></div>
+    <div class="dj-barra"><div id="djRelB" class="dj-rel z"></div></div>
+    <button type="button" id="btnPlayB" class="btn" style="margin-top:1rem">Pausar</button>
    </div>
   </div>
  </section>
@@ -101,6 +154,8 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
 </div>
 
 <audio id="audio" preload="auto"></audio>
+<audio id="audioA" preload="auto"></audio>
+<audio id="audioB" preload="auto"></audio>
 
 <script>
 (function () {
@@ -254,6 +309,7 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
       audio.src = SILENCIO;
       var p = audio.play(); if (p && p.catch) { p.catch(function () {}); }
     }
+    desbloquearDiscos();
   }
   el("btnActivar").onclick = activarSonido;
   el("btnSonido").onclick = activarSonido;
@@ -267,7 +323,8 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
       seg: Math.floor(Date.now() / 1000),
       titulo: String(actual.titulo || "").substring(0, 200),
       artista: String(actual.artista || "").substring(0, 150),
-      urlImg: String(actual.urlImg || "").substring(0, 2000)
+      urlImg: String(actual.urlImg || "").substring(0, 2000),
+      quien: String(quienClasico || "").substring(0, 60)
     });
     ultimoEnvio = Date.now();
     http("PUT", DB + "/tv_estado/" + codigo + ".json", cuerpo, function () {});
@@ -308,46 +365,219 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
     el("tiempo").textContent = fmt(audio.currentTime) + " / " + fmt(audio.duration);
   });
   setInterval(function () {
+    if (djActivo && ultimoDeck && ultimoDeck.actual && !ultimoDeck.audio.ended && Date.now() - ultimoEnvio >= 15000 && ultimoDeck.audio.src.indexOf("data:audio") !== 0) {
+      reportarDeck(ultimoDeck, ultimoDeck.audio.paused ? "paused" : "playing");
+    }
     if (actual && !audio.ended && Date.now() - ultimoEnvio >= 15000 && audio.src.indexOf("data:audio") !== 0) {
       reportar(audio.paused ? "paused" : "playing");
     }
   }, 5000);
 
   /* ---------- recibir temas ---------- */
-  var lastId = "", primera = true;
+  var lastId = "", primera = true, quienClasico = "";
   function estadoRed(ok) {
     var r = el("red");
     r.textContent = ok ? "Conectada. Esperando un tema desde Bethel..." : "Sin conexión a internet";
     r.style.color = ok ? "#c9b8ff" : "#ffd54a";
   }
-  function sondear() {
-    var codigoPedido = codigo;
-    http("GET", DB + "/tv_bethel/" + codigoPedido + ".json", null, function (ok, txt) {
-      if (codigoPedido === codigo) {
-        if (!ok) { estadoRed(false); }
-        else {
-          estadoRed(true);
-          var d = null;
-          try { d = JSON.parse(txt); } catch (e) { d = null; }
-          if (d && d.id && d.urlAudio && d.id !== lastId) {
-            lastId = d.id;
-            var va = true;
-            if (primera && !auto()) {
-              var ahora = Math.floor(Date.now() / 1000);
-              if (!d.seg || ahora - d.seg > 120) { va = false; }
-            }
-            if (va) {
-              var c = { titulo: d.titulo || "", artista: d.artista || "", urlImg: d.urlImg || "", urlAudio: d.urlAudio };
-              agregarHist(c);
-              irA("vReproductor");
-              reproducir(c);
-            }
-          }
-          primera = false;
-        }
-      }
-      setTimeout(sondear, 2000);
+
+  /* ---------- mesa DJ (2 personas con el mismo código) ---------- */
+  function crearDeck(L) {
+    return { L: L, audio: el("audio" + L), uid: "", nombre: "", lastId: "", primera: true, actual: null, pendiente: null, cambiando: false };
+  }
+  var decks = { a: crearDeck("A"), b: crearDeck("B") };
+  var djActivo = false, mezcla = 50, ultimoDeck = null;
+
+  function aplicarMezcla() {
+    var r = (mezcla / 100) * Math.PI / 2;
+    try { decks.a.audio.volume = Math.cos(r); decks.b.audio.volume = Math.sin(r); } catch (e) {}
+    el("djMezcla").style.left = mezcla + "%";
+  }
+  function moverMezcla(d) { mezcla = Math.max(0, Math.min(100, mezcla + d)); aplicarMezcla(); }
+  el("btnMezA").onclick = function () { moverMezcla(-10); };
+  el("btnMezB").onclick = function () { moverMezcla(10); };
+  el("btnMezC").onclick = function () { mezcla = 50; aplicarMezcla(); };
+  aplicarMezcla();
+
+  function pintarDeck(d) {
+    var L = d.L;
+    el("djTit" + L).textContent = d.actual ? (d.actual.titulo || "") : "Esperando tema...";
+    el("djArt" + L).textContent = d.actual ? (d.actual.artista || "") : "";
+    el("discoImg" + L).src = (d.actual && d.actual.urlImg) ? d.actual.urlImg : PORTADA0;
+  }
+  function estadoDeck(d, txt, sonando) {
+    el("djEst" + d.L).textContent = txt;
+    el("disco" + d.L).className = "disco " + (d.L === "A" ? "rojo" : "azul") + (sonando ? " sonando" : "");
+  }
+  function cargarDeck(d, data) {
+    d.actual = data;
+    pintarDeck(d);
+    estadoDeck(d, "Cargando...", false);
+    el("djRel" + d.L).style.width = "0";
+    if (!sonidoActivo) { d.pendiente = data; el("activar").className = "visible"; return; }
+    d.cambiando = true;
+    d.audio.src = data.urlAudio;
+    var p = d.audio.play();
+    if (p && p.catch) { p.catch(function () { estadoDeck(d, "Pulsa Reanudar para iniciar", false); }); }
+  }
+  function desbloquearDiscos() {
+    var k, d, p;
+    for (k in decks) {
+      d = decks[k];
+      if (d.pendiente) { var x = d.pendiente; d.pendiente = null; cargarDeck(d, x); }
+      else { d.audio.src = SILENCIO; p = d.audio.play(); if (p && p.catch) { p.catch(function () {}); } }
+    }
+  }
+  function reportarDeck(d, estado) {
+    if (!d.actual) return;
+    var cuerpo = JSON.stringify({
+      estado: estado,
+      seg: Math.floor(Date.now() / 1000),
+      titulo: String(d.actual.titulo || "").substring(0, 200),
+      artista: String(d.actual.artista || "").substring(0, 150),
+      urlImg: String(d.actual.urlImg || "").substring(0, 2000),
+      quien: String(d.nombre || "").substring(0, 60)
     });
+    ultimoEnvio = Date.now();
+    ultimoDeck = d;
+    http("PUT", DB + "/tv_estado/" + codigo + ".json", cuerpo, function () {});
+  }
+  function enlazarDeck(d) {
+    var a = d.audio, L = d.L;
+    function silencio() { return a.src.indexOf("data:audio") === 0; }
+    a.addEventListener("playing", function () {
+      if (!d.actual) return;
+      d.cambiando = false;
+      estadoDeck(d, "Reproduciendo", true);
+      el("btnPlay" + L).textContent = "Pausar";
+      reportarDeck(d, "playing");
+    });
+    a.addEventListener("pause", function () {
+      if (!d.actual || d.cambiando || a.ended) return;
+      estadoDeck(d, "En pausa", false);
+      el("btnPlay" + L).textContent = "Reanudar";
+      reportarDeck(d, "paused");
+    });
+    a.addEventListener("waiting", function () {
+      if (!d.actual) return;
+      estadoDeck(d, "Cargando...", false);
+      reportarDeck(d, "buffering");
+    });
+    a.addEventListener("ended", function () {
+      if (!d.actual) return;
+      estadoDeck(d, "Terminó", false);
+      el("btnPlay" + L).textContent = "Repetir";
+      reportarDeck(d, "finished");
+    });
+    a.addEventListener("error", function () {
+      if (!d.actual || !sonidoActivo || silencio()) return;
+      estadoDeck(d, "No se pudo reproducir", false);
+      reportarDeck(d, "error");
+    });
+    a.addEventListener("timeupdate", function () {
+      if (!d.actual || !a.duration || silencio()) return;
+      el("djRel" + L).style.width = Math.min(100, (a.currentTime / a.duration) * 100) + "%";
+    });
+    el("btnPlay" + L).onclick = function () {
+      if (!d.actual) return;
+      if (a.paused) { var p = a.play(); if (p && p.catch) { p.catch(function () {}); } } else { a.pause(); }
+    };
+  }
+  enlazarDeck(decks.a);
+  enlazarDeck(decks.b);
+
+  function modoDJ(on) {
+    if (on === djActivo) return;
+    djActivo = on;
+    el("navDJ").style.display = on ? "inline-block" : "none";
+    var k;
+    if (on) {
+      actual = null; pendiente = null; parar();
+      for (k in decks) { decks[k].primera = true; decks[k].lastId = ""; }
+      irA("vDJ");
+    } else {
+      for (k in decks) {
+        try { decks[k].audio.pause(); } catch (e) {}
+        decks[k].actual = null; decks[k].pendiente = null; decks[k].uid = ""; decks[k].nombre = "";
+        pintarDeck(decks[k]); estadoDeck(decks[k], "", false);
+        el("djNom" + decks[k].L).textContent = decks[k].L === "A" ? "DJ rojo" : "DJ azul";
+      }
+      irA("vReproductor");
+      el("reproduciendo").style.display = "none"; el("vacio").style.display = "block";
+    }
+  }
+  function asignarDeck(d, uid, sala, datos) {
+    if (d.uid !== uid) { d.uid = uid; d.lastId = ""; d.primera = true; }
+    d.nombre = uid && sala.miembros[uid] ? (sala.miembros[uid].nombre || "") : "";
+    el("djNom" + d.L).textContent = d.nombre || (d.L === "A" ? "DJ rojo" : "DJ azul");
+    var x = uid ? datos[uid] : null;
+    if (x && x.id && x.urlAudio && x.id !== d.lastId) {
+      d.lastId = x.id;
+      var va = true;
+      if (d.primera) {
+        var ahora = Math.floor(Date.now() / 1000);
+        if (!x.seg || ahora - x.seg > 120) { va = false; }
+      }
+      if (va) { cargarDeck(d, x); }
+    }
+    d.primera = false;
+  }
+  function procesarDJ(sala, datos) {
+    var uidB = "", k;
+    for (k in sala.miembros) { if (k !== sala.dueno) { uidB = k; } }
+    asignarDeck(decks.a, sala.dueno, sala, datos);
+    asignarDeck(decks.b, uidB, sala, datos);
+  }
+
+  /* ---------- recibir temas ---------- */
+  function procesarClasico(d) {
+    if (d && d.id && d.urlAudio && d.id !== lastId) {
+      lastId = d.id;
+      var va = true;
+      if (primera && !auto()) {
+        var ahora = Math.floor(Date.now() / 1000);
+        if (!d.seg || ahora - d.seg > 120) { va = false; }
+      }
+      if (va) {
+        var c = { titulo: d.titulo || "", artista: d.artista || "", urlImg: d.urlImg || "", urlAudio: d.urlAudio };
+        agregarHist(c);
+        irA("vReproductor");
+        reproducir(c);
+      }
+    }
+  }
+  function leerJson(txt) { try { return JSON.parse(txt); } catch (e) { return null; } }
+  function sondear() {
+    var cod = codigo, res = {}, pend = 3, algunaOk = false;
+    function listo(clave, ok, txt) {
+      if (ok) { algunaOk = true; res[clave] = leerJson(txt); }
+      pend--;
+      if (pend === 0) { procesar(cod, res, algunaOk); }
+    }
+    http("GET", DB + "/tv_sala/" + cod + ".json", null, function (ok, txt) { listo("sala", ok, txt); });
+    http("GET", DB + "/tv_decks/" + cod + ".json", null, function (ok, txt) { listo("decks", ok, txt); });
+    http("GET", DB + "/tv_bethel/" + cod + ".json", null, function (ok, txt) { listo("bethel", ok, txt); });
+  }
+  function procesar(cod, res, algunaOk) {
+    if (cod === codigo) {
+      estadoRed(algunaOk);
+      if (algunaOk) {
+        var sala = res.sala;
+        var miembros = sala && sala.miembros ? sala.miembros : null;
+        var n = miembros ? Object.keys(miembros).length : 0;
+        quienClasico = (sala && sala.duenoNombre) ? sala.duenoNombre : "";
+        if (n >= 2 && sala.dueno) {
+          modoDJ(true);
+          procesarDJ(sala, res.decks || {});
+          if (res.bethel && res.bethel.id) { lastId = res.bethel.id; }
+        } else {
+          modoDJ(false);
+          procesarClasico(res.bethel);
+        }
+        primera = false;
+      }
+    }
+    setTimeout(sondear, 2000);
   }
 
   /* ---------- teclas del control ---------- */
