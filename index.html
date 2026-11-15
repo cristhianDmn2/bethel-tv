@@ -67,6 +67,12 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
 .btn-azul{background:#10304f;color:#a9d3ff}
 .dj-barra-mezcla{width:34%;padding:.8rem 0;border:3px solid transparent;border-radius:.6rem}
 .dj-barra-mezcla:focus{outline:none;border-color:#fff}
+.ultimo{display:inline-flex;align-items:center;background:#1e1730;border-radius:1rem;padding:1rem 1.4rem;margin-top:1.5rem;text-align:left;max-width:90%}
+.ultimo img{width:5rem;height:5rem;border-radius:.6rem;object-fit:cover;background:#2a2040;flex:none}
+.ultimo .u-datos{margin:0 1.4rem;min-width:0}
+.ultimo .u-t{font-size:1.2rem;font-weight:bold;word-wrap:break-word}
+.ultimo .u-a{font-size:.95rem;color:#c9b8ff;margin-top:.2rem}
+.ultimo .u-l{font-size:.8rem;color:#8D67E2;margin-bottom:.3rem;font-weight:bold}
 .desafio{margin-top:2.5rem;padding:1rem 1.4rem;background:#1e1730;border:2px solid #8D67E2;border-radius:1rem;font-size:1.05rem;color:#d0c8e6;line-height:1.5;text-align:center}
 .desafio b{color:#fff;letter-spacing:.15rem}
 #anuncioDJ{position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(15,13,25,.94);display:none;align-items:center;justify-content:center;text-align:center;z-index:20}
@@ -88,14 +94,29 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
  <div class="marca" id="marca">Bethel TV</div>
  <button type="button" id="btnSonido" class="btn" style="display:none">Activar sonido</button>
  <nav>
-  <button type="button" data-v="vReproductor" class="activo">Reproductor</button>
+  <button type="button" data-v="vInicio" class="activo">Inicio</button>
+  <button type="button" data-v="vReproductor">Reproductor</button>
   <button type="button" id="navDJ" data-v="vDJ" style="display:none">Sala DJ</button>
   <button type="button" data-v="vHistorial">Historial</button>
   <button type="button" data-v="vCodigo">Código de la TV</button>
  </nav>
 </header>
 <main>
- <section id="vReproductor" class="vista visible">
+ <section id="vInicio" class="vista visible centro">
+  <h2>Bienvenido a Bethel TV</h2>
+  <div class="pasos">Envía música a esta TV desde la app Bethel: mantén presionado un tema, toca <b>Enviar a</b> y, en <b>Mi TV</b>, escribe este código.</div>
+  <div class="caja"><div id="codigoInicio" style="font-size:4rem;font-weight:bold;letter-spacing:.3rem">------</div></div>
+  <div id="redInicio" style="font-size:1.1rem;font-weight:bold;color:#ffd54a">Conectando...</div>
+  <div id="ultimoTema" style="display:none">
+   <div class="ultimo">
+    <img id="ultimoImg" alt="" src="">
+    <div class="u-datos"><div class="u-l">Último tema enviado</div><div id="ultimoTit" class="u-t"></div><div id="ultimoArt" class="u-a"></div></div>
+    <button type="button" id="btnUltimo" class="btn">&#9654; Reproducir</button>
+   </div>
+  </div>
+  <div class="desafio">🎧 ¡Desafía a tu amigo! Que escriba este mismo código en la app Bethel y manden temas a esta TV: se arma la <b>Sala DJ</b> con dos discos.</div>
+ </section>
+ <section id="vReproductor" class="vista">
   <div id="vacio" class="vacio">Aún no has enviado ningún tema.<br>Envía uno desde la app Bethel.</div>
   <div id="reproduciendo" class="fila" style="display:none">
    <img id="portada" alt="Portada" src="">
@@ -193,7 +214,7 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
   }
   var codigo = ls(K_COD);
   if (!codigo || !/^[A-Z0-9]{6}$/.test(codigo)) { codigo = nuevoCodigo(); }
-  function mostrarCodigo() { var c = codigo.substring(0, 3) + " " + codigo.substring(3); el("codigo").textContent = c; el("desafioCod").textContent = c; }
+  function mostrarCodigo() { var c = codigo.substring(0, 3) + " " + codigo.substring(3); el("codigo").textContent = c; el("desafioCod").textContent = c; el("codigoInicio").textContent = c; }
 
   /* ---------- red ---------- */
   function http(metodo, url, cuerpo, cb) {
@@ -226,7 +247,7 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
   }
 
   /* ---------- ajustes ---------- */
-  function auto() { return ls(K_AUTO) !== "0"; }
+  function auto() { return ls(K_AUTO) === "1"; }
   function pintarAuto() { el("btnAuto").textContent = "Auto-reproducir: " + (auto() ? "Sí" : "No"); }
   el("btnAuto").onclick = function () { ss(K_AUTO, auto() ? "0" : "1"); pintarAuto(); };
   el("btnCambiar").onclick = function () {
@@ -251,6 +272,7 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
     }
     ss(K_HIST, JSON.stringify(nueva));
     pintarHist();
+    pintarInicio();
   }
   function pintarHist() {
     var cont = el("listaHist"), h = leerHist(), i, b;
@@ -268,6 +290,22 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
       cont.appendChild(b);
     }
   }
+
+  function pintarInicio() {
+    var h = leerHist(), box = el("ultimoTema");
+    if (!h.length) { box.style.display = "none"; return; }
+    box.style.display = "block";
+    el("ultimoImg").src = h[0].urlImg ? h[0].urlImg : PORTADA0;
+    el("ultimoTit").textContent = h[0].titulo || "";
+    el("ultimoArt").textContent = h[0].artista || "";
+  }
+  el("btnUltimo").onclick = function () {
+    var h = leerHist();
+    if (!h.length) return;
+    activarSonido();
+    irA("vReproductor");
+    reproducir(h[0]);
+  };
 
   /* ---------- reproductor ---------- */
   var audio = el("audio");
@@ -390,11 +428,13 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
     var r = el("red");
     r.textContent = ok ? "Conectada. Esperando un tema desde Bethel..." : "Sin conexión a internet";
     r.style.color = ok ? "#c9b8ff" : "#ffd54a";
+    var r2 = el("redInicio");
+    r2.textContent = r.textContent; r2.style.color = r.style.color;
   }
 
   /* ---------- mesa DJ (2 personas con el mismo código) ---------- */
   function crearDeck(L) {
-    return { L: L, audio: el("audio" + L), uid: "", nombre: "", lastId: "", primera: true, actual: null, pendiente: null, cambiando: false };
+    return { L: L, audio: el("audio" + L), uid: "", nombre: "", lastId: "", primera: true, actual: null, pendiente: null, cambiando: false, preparado: false };
   }
   var decks = { a: crearDeck("A"), b: crearDeck("B") };
   var djActivo = false, mezcla = 50, ultimoDeck = null;
@@ -510,6 +550,7 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
     });
     el("btnPlay" + L).onclick = function () {
       if (!d.actual) return;
+      if (d.preparado) { activarSonido(); d.preparado = false; cargarDeck(d, d.actual); return; }
       if (a.paused) { var p = a.play(); if (p && p.catch) { p.catch(function () {}); } } else { a.pause(); }
     };
   }
@@ -547,7 +588,7 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
       el("anuncioDJ").className = "";
       for (k in decks) {
         try { decks[k].audio.pause(); } catch (e) {}
-        decks[k].actual = null; decks[k].pendiente = null; decks[k].uid = ""; decks[k].nombre = "";
+        decks[k].actual = null; decks[k].pendiente = null; decks[k].preparado = false; decks[k].uid = ""; decks[k].nombre = "";
         pintarDeck(decks[k]); estadoDeck(decks[k], "", false);
         el("djNom" + decks[k].L).textContent = decks[k].L === "A" ? "DJ rojo" : "DJ azul";
       }
@@ -562,12 +603,12 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
     var x = uid ? datos[uid] : null;
     if (x && x.id && x.urlAudio && x.id !== d.lastId) {
       d.lastId = x.id;
-      var va = true;
-      if (d.primera) {
-        var ahora = Math.floor(Date.now() / 1000);
-        if (!x.seg || ahora - x.seg > 120) { va = false; }
-      }
-      if (va) { marcarActividad(); cargarDeck(d, x); }
+      if (d.primera && !auto()) {
+        // Al abrir la página no suena sola: queda lista para darle Reproducir.
+        d.actual = x; d.preparado = true;
+        pintarDeck(d); estadoDeck(d, "Listo para reproducir", false);
+        el("btnPlay" + d.L).textContent = "Reproducir";
+      } else { marcarActividad(); cargarDeck(d, x); }
     }
     d.primera = false;
   }
@@ -584,13 +625,14 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
       lastId = d.id;
       var va = true;
       if (ignorarClasico) { va = false; }
+      var c = { titulo: d.titulo || "", artista: d.artista || "", urlImg: d.urlImg || "", urlAudio: d.urlAudio };
       if (primera && !auto()) {
-        var ahora = Math.floor(Date.now() / 1000);
-        if (!d.seg || ahora - d.seg > 120) { va = false; }
+        // Al abrir la página no suena sola: el último tema queda en el historial y en Inicio.
+        va = false;
+        agregarHist(c);
       }
       if (va) {
         marcarActividad();
-        var c = { titulo: d.titulo || "", artista: d.artista || "", urlImg: d.urlImg || "", urlAudio: d.urlAudio };
         agregarHist(c);
         irA("vReproductor");
         reproducir(c);
@@ -679,7 +721,8 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
   el("red").textContent = "Conectando...";
   el("red").style.color = "#ffd54a";
   el("btnSonido").style.display = "inline-block";
-  if (!ls(K_HIST)) { irA("vCodigo"); }
+  irA("vInicio");
+  pintarInicio();
   sondear();
 })();
 </script>
