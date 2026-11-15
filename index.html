@@ -41,7 +41,7 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
 #activar p{font-size:1.4rem;color:#d0c8e6;margin:0 0 1.5rem 0}
 #btnActivar{font-family:inherit;font-size:1.6rem;font-weight:bold;color:#6a3fb5;background:#fff;border:4px solid transparent;border-radius:3rem;padding:1rem 3rem;cursor:pointer}
 .dj-mesa{display:flex;align-items:flex-start;justify-content:space-around}
-.dj-lado{width:38%;text-align:center}
+.dj-lado{width:44%;text-align:center}
 .dj-nombre{font-size:1.3rem;font-weight:bold;margin-bottom:.8rem}
 .rojo-t{color:#ff6b66}
 .azul-t{color:#5aa9f5}
@@ -59,10 +59,20 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
 .dj-rel{height:100%;width:0}
 .dj-rel.r{background:#e53935}
 .dj-rel.z{background:#1e88e5}
-.dj-centro{width:18%;text-align:center;padding-top:3rem}
 .mezcla{position:relative;height:.5rem;background:linear-gradient(90deg,#e53935,#1e88e5);border-radius:.3rem;margin:1rem 0 1.2rem 0}
 #djMezcla{position:absolute;top:-.5rem;left:50%;width:1.2rem;height:1.5rem;margin-left:-.6rem;background:#fff;border-radius:.3rem}
-.dj-centro .btn{display:block;width:100%;margin:.4rem 0;padding:.5rem .4rem}
+.dj-control{display:flex;align-items:center;justify-content:center;margin-top:1.8rem}
+.dj-control .btn{margin:0 .8rem;font-size:1.1rem;padding:.8rem 1.6rem}
+.btn-rojo{background:#5a1614;color:#ffb3ae}
+.btn-azul{background:#10304f;color:#a9d3ff}
+.dj-barra-mezcla{width:34%;padding:.8rem 0;border:3px solid transparent;border-radius:.6rem}
+.dj-barra-mezcla:focus{outline:none;border-color:#fff}
+.desafio{margin-top:2.5rem;padding:1rem 1.4rem;background:#1e1730;border:2px solid #8D67E2;border-radius:1rem;font-size:1.05rem;color:#d0c8e6;line-height:1.5;text-align:center}
+.desafio b{color:#fff;letter-spacing:.15rem}
+#anuncioDJ{position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(15,13,25,.94);display:none;align-items:center;justify-content:center;text-align:center;z-index:20}
+#anuncioDJ.visible{display:flex}
+#anuncioDJ .gran{font-size:4rem;font-weight:bold}
+#anuncioDJ .vs{font-size:1.8rem;margin-top:1.2rem;font-weight:bold}
 @media (max-width:700px){
  .fila{display:block}
  .datos{margin:1.5rem 0 0 0}
@@ -75,11 +85,11 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
 <body>
 <div id="franja"></div>
 <header>
- <div class="marca">Bethel TV</div>
+ <div class="marca" id="marca">Bethel TV</div>
  <button type="button" id="btnSonido" class="btn" style="display:none">Activar sonido</button>
  <nav>
   <button type="button" data-v="vReproductor" class="activo">Reproductor</button>
-  <button type="button" id="navDJ" data-v="vDJ" style="display:none">Mesa DJ</button>
+  <button type="button" id="navDJ" data-v="vDJ" style="display:none">Sala DJ</button>
   <button type="button" data-v="vHistorial">Historial</button>
   <button type="button" data-v="vCodigo">Código de la TV</button>
  </nav>
@@ -99,6 +109,7 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
     <button type="button" id="btnPausa" class="btn">Pausar</button>
    </div>
   </div>
+   <div id="desafio" class="desafio">🎧 ¡Desafía a tu amigo! Que escriba el código <b id="desafioCod">------</b> en la app Bethel y manden temas a esta TV: se arma la <b>Sala DJ</b> con dos discos.</div>
  </section>
 <section id="vDJ" class="vista">
   <div class="dj-mesa">
@@ -111,13 +122,6 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
     <div class="dj-barra"><div id="djRelA" class="dj-rel r"></div></div>
     <button type="button" id="btnPlayA" class="btn" style="margin-top:1rem">Pausar</button>
    </div>
-   <div class="dj-centro">
-    <div class="dj-art">Mezcla</div>
-    <div class="mezcla"><div id="djMezcla"></div></div>
-    <button type="button" id="btnMezA" class="btn">&#9664; Más rojo</button>
-    <button type="button" id="btnMezC" class="btn">Centro</button>
-    <button type="button" id="btnMezB" class="btn">Más azul &#9654;</button>
-   </div>
    <div class="dj-lado">
     <div id="djNomB" class="dj-nombre azul-t">DJ azul</div>
     <div id="discoB" class="disco azul"><img id="discoImgB" class="disco-label" alt="" src=""></div>
@@ -128,6 +132,12 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
     <button type="button" id="btnPlayB" class="btn" style="margin-top:1rem">Pausar</button>
    </div>
   </div>
+  <div class="dj-control">
+   <button type="button" id="btnPasarR" class="btn btn-rojo">&#9664; Pasar al rojo</button>
+   <div id="mezclaBarra" class="dj-barra-mezcla" tabindex="0"><div class="mezcla"><div id="djMezcla"></div></div></div>
+   <button type="button" id="btnPasarB" class="btn btn-azul">Pasar al azul &#9654;</button>
+  </div>
+  <div class="ayuda centro">Pasar al rojo o al azul hace una mezcla suave. En la barra, usa izquierda y derecha para ajustar. <button type="button" id="btnMezC" class="btn" style="font-size:.9rem;padding:.3rem 1rem">Centro</button></div>
  </section>
  <section id="vHistorial" class="vista">
   <h2>Historial</h2>
@@ -153,6 +163,7 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
  </div>
 </div>
 
+<div id="anuncioDJ"><div><div class="gran">🎧 SALA DJ</div><div class="vs" id="anuncioVs"></div></div></div>
 <audio id="audio" preload="auto"></audio>
 <audio id="audioA" preload="auto"></audio>
 <audio id="audioB" preload="auto"></audio>
@@ -182,7 +193,7 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
   }
   var codigo = ls(K_COD);
   if (!codigo || !/^[A-Z0-9]{6}$/.test(codigo)) { codigo = nuevoCodigo(); }
-  function mostrarCodigo() { el("codigo").textContent = codigo.substring(0, 3) + " " + codigo.substring(3); }
+  function mostrarCodigo() { var c = codigo.substring(0, 3) + " " + codigo.substring(3); el("codigo").textContent = c; el("desafioCod").textContent = c; }
 
   /* ---------- red ---------- */
   function http(metodo, url, cuerpo, cb) {
@@ -388,15 +399,34 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
   var decks = { a: crearDeck("A"), b: crearDeck("B") };
   var djActivo = false, mezcla = 50, ultimoDeck = null;
 
+  var animMezcla = null;
   function aplicarMezcla() {
     var r = (mezcla / 100) * Math.PI / 2;
     try { decks.a.audio.volume = Math.cos(r); decks.b.audio.volume = Math.sin(r); } catch (e) {}
     el("djMezcla").style.left = mezcla + "%";
   }
-  function moverMezcla(d) { mezcla = Math.max(0, Math.min(100, mezcla + d)); aplicarMezcla(); }
-  el("btnMezA").onclick = function () { moverMezcla(-10); };
-  el("btnMezB").onclick = function () { moverMezcla(10); };
-  el("btnMezC").onclick = function () { mezcla = 50; aplicarMezcla(); };
+  function irMezcla(destino, ms) {
+    if (animMezcla) { clearInterval(animMezcla); animMezcla = null; }
+    var inicio = mezcla, pasos = Math.max(1, Math.round(ms / 100)), n = 0;
+    animMezcla = setInterval(function () {
+      n++;
+      mezcla = Math.round(inicio + (destino - inicio) * (n / pasos));
+      aplicarMezcla();
+      if (n >= pasos) { clearInterval(animMezcla); animMezcla = null; mezcla = destino; aplicarMezcla(); }
+    }, 100);
+  }
+  function moverMezcla(d) {
+    if (animMezcla) { clearInterval(animMezcla); animMezcla = null; }
+    mezcla = Math.max(0, Math.min(100, mezcla + d)); aplicarMezcla();
+  }
+  el("btnPasarR").onclick = function () { irMezcla(0, 3000); };
+  el("btnPasarB").onclick = function () { irMezcla(100, 3000); };
+  el("btnMezC").onclick = function () { irMezcla(50, 1000); };
+  el("mezclaBarra").onkeydown = function (ev) {
+    var k = ev.keyCode;
+    if (k === 37) { moverMezcla(-10); ev.preventDefault(); }
+    else if (k === 39) { moverMezcla(10); ev.preventDefault(); }
+  };
   aplicarMezcla();
 
   function pintarDeck(d) {
@@ -486,16 +516,35 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
   enlazarDeck(decks.a);
   enlazarDeck(decks.b);
 
-  function modoDJ(on) {
+  var anuncioT = null;
+  function anunciarDJ(sala) {
+    var a = (sala.miembros[sala.dueno] && sala.miembros[sala.dueno].nombre) || "Rojo", b = "Azul", k;
+    for (k in sala.miembros) { if (k !== sala.dueno) { b = sala.miembros[k].nombre || "Azul"; } }
+    el("anuncioVs").innerHTML = "";
+    var r = document.createElement("span"); r.style.color = "#ff6b66"; r.textContent = a;
+    var z = document.createElement("span"); z.style.color = "#5aa9f5"; z.textContent = b;
+    el("anuncioVs").appendChild(r); el("anuncioVs").appendChild(document.createTextNode("   VS   ")); el("anuncioVs").appendChild(z);
+    el("anuncioDJ").className = "visible";
+    if (anuncioT) { clearTimeout(anuncioT); }
+    anuncioT = setTimeout(function () { el("anuncioDJ").className = ""; }, 3500);
+  }
+  var ignorarClasico = false;
+  function modoDJ(on, sala) {
     if (on === djActivo) return;
     djActivo = on;
+    marcarActividad();
     el("navDJ").style.display = on ? "inline-block" : "none";
+    el("marca").textContent = on ? "🎧 Sala DJ" : "Bethel TV";
+    try { document.title = on ? "Sala DJ - Bethel TV" : "Bethel TV"; } catch (e0) {}
     var k;
     if (on) {
       actual = null; pendiente = null; parar();
       for (k in decks) { decks[k].primera = true; decks[k].lastId = ""; }
       irA("vDJ");
+      if (sala) { anunciarDJ(sala); }
     } else {
+      ignorarClasico = true;
+      el("anuncioDJ").className = "";
       for (k in decks) {
         try { decks[k].audio.pause(); } catch (e) {}
         decks[k].actual = null; decks[k].pendiente = null; decks[k].uid = ""; decks[k].nombre = "";
@@ -518,7 +567,7 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
         var ahora = Math.floor(Date.now() / 1000);
         if (!x.seg || ahora - x.seg > 120) { va = false; }
       }
-      if (va) { cargarDeck(d, x); }
+      if (va) { marcarActividad(); cargarDeck(d, x); }
     }
     d.primera = false;
   }
@@ -534,11 +583,13 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
     if (d && d.id && d.urlAudio && d.id !== lastId) {
       lastId = d.id;
       var va = true;
+      if (ignorarClasico) { va = false; }
       if (primera && !auto()) {
         var ahora = Math.floor(Date.now() / 1000);
         if (!d.seg || ahora - d.seg > 120) { va = false; }
       }
       if (va) {
+        marcarActividad();
         var c = { titulo: d.titulo || "", artista: d.artista || "", urlImg: d.urlImg || "", urlAudio: d.urlAudio };
         agregarHist(c);
         irA("vReproductor");
@@ -547,37 +598,72 @@ h2{font-size:1.8rem;margin:0 0 1rem 0}
     }
   }
   function leerJson(txt) { try { return JSON.parse(txt); } catch (e) { return null; } }
-  function sondear() {
-    var cod = codigo, res = {}, pend = 3, algunaOk = false;
-    function listo(clave, ok, txt) {
-      if (ok) { algunaOk = true; res[clave] = leerJson(txt); }
-      pend--;
-      if (pend === 0) { procesar(cod, res, algunaOk); }
-    }
-    http("GET", DB + "/tv_sala/" + cod + ".json", null, function (ok, txt) { listo("sala", ok, txt); });
-    http("GET", DB + "/tv_decks/" + cod + ".json", null, function (ok, txt) { listo("decks", ok, txt); });
-    http("GET", DB + "/tv_bethel/" + cod + ".json", null, function (ok, txt) { listo("bethel", ok, txt); });
+
+  /* Para gastar poco de Firebase: se pregunta rápido solo cuando hay actividad. */
+  var ultimaActividad = Date.now(), enVuelo = false, timerSondeo = null;
+  function marcarActividad() { ultimaActividad = Date.now(); }
+  function algoSonando() {
+    if (actual && !audio.paused && !audio.ended) { return true; }
+    if (decks.a.actual && !decks.a.audio.paused && !decks.a.audio.ended) { return true; }
+    if (decks.b.actual && !decks.b.audio.paused && !decks.b.audio.ended) { return true; }
+    return false;
   }
-  function procesar(cod, res, algunaOk) {
-    if (cod === codigo) {
-      estadoRed(algunaOk);
-      if (algunaOk) {
-        var sala = res.sala;
-        var miembros = sala && sala.miembros ? sala.miembros : null;
-        var n = miembros ? Object.keys(miembros).length : 0;
-        quienClasico = (sala && sala.duenoNombre) ? sala.duenoNombre : "";
-        if (n >= 2 && sala.dueno) {
-          modoDJ(true);
-          procesarDJ(sala, res.decks || {});
-          if (res.bethel && res.bethel.id) { lastId = res.bethel.id; }
-        } else {
-          modoDJ(false);
-          procesarClasico(res.bethel);
+  function intervaloSondeo() {
+    if (algoSonando() || djActivo) { return 2000; }
+    if (document.hidden) { return 20000; }
+    var ocio = Date.now() - ultimaActividad;
+    if (ocio < 120000) { return 2000; }
+    if (ocio < 600000) { return 5000; }
+    return 10000;
+  }
+  function programar() {
+    if (timerSondeo) { clearTimeout(timerSondeo); }
+    timerSondeo = setTimeout(sondear, intervaloSondeo());
+  }
+  function sondearYa() {
+    if (enVuelo) { return; }
+    if (timerSondeo) { clearTimeout(timerSondeo); timerSondeo = null; }
+    sondear();
+  }
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) { marcarActividad(); sondearYa(); } });
+  document.addEventListener("keydown", marcarActividad);
+  document.addEventListener("click", marcarActividad);
+
+  function sondear() {
+    enVuelo = true;
+    var cod = codigo;
+    function fin(algunaOk, sala, datos, esDJ) {
+      if (cod === codigo) {
+        estadoRed(algunaOk);
+        if (algunaOk) {
+          quienClasico = (sala && sala.duenoNombre) ? sala.duenoNombre : "";
+          if (esDJ) {
+            modoDJ(true, sala);
+            procesarDJ(sala, datos || {});
+          } else {
+            modoDJ(false);
+            procesarClasico(datos);
+            ignorarClasico = false;
+          }
+          primera = false;
         }
-        primera = false;
       }
+      enVuelo = false;
+      programar();
     }
-    setTimeout(sondear, 2000);
+    http("GET", DB + "/tv_sala/" + cod + ".json", null, function (ok1, txt1) {
+      var sala = ok1 ? leerJson(txt1) : null;
+      var n = (sala && sala.miembros) ? Object.keys(sala.miembros).length : 0;
+      if (n >= 2 && sala.dueno) {
+        http("GET", DB + "/tv_decks/" + cod + ".json", null, function (ok2, txt2) {
+          fin(ok2, sala, ok2 ? leerJson(txt2) : null, true);
+        });
+      } else {
+        http("GET", DB + "/tv_bethel/" + cod + ".json", null, function (ok3, txt3) {
+          fin(ok3 || ok1, sala, ok3 ? leerJson(txt3) : null, false);
+        });
+      }
+    });
   }
 
   /* ---------- teclas del control ---------- */
