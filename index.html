@@ -510,7 +510,10 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       n++;
       mezcla = Math.round(inicio + (destino - inicio) * (n / pasos));
       aplicarMezcla();
-      if (n >= pasos) { clearInterval(animMezcla); animMezcla = null; mezcla = destino; aplicarMezcla(); }
+      if (n >= pasos) {
+        clearInterval(animMezcla); animMezcla = null; mezcla = destino; aplicarMezcla();
+        if (ultimoDeck && ultimoDeck.actual) { reportarDeck(ultimoDeck, estadoDe(ultimoDeck)); }
+      }
     }, 100);
   }
   function moverMezcla(d) {
@@ -556,6 +559,12 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       else { d.audio.src = SILENCIO; p = d.audio.play(); if (p && p.catch) { p.catch(function () {}); } }
     }
   }
+  function estadoDe(d) {
+    if (!d.actual) { return "idle"; }
+    if (d.preparado) { return "ready"; }
+    if (d.audio.ended) { return "finished"; }
+    return d.audio.paused ? "paused" : "playing";
+  }
   function reportarDeck(d, estado) {
     if (!d.actual) return;
     var cuerpo = JSON.stringify({
@@ -564,7 +573,10 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       titulo: String(d.actual.titulo || "").substring(0, 200),
       artista: String(d.actual.artista || "").substring(0, 150),
       urlImg: String(d.actual.urlImg || "").substring(0, 2000),
-      quien: String(d.nombre || "").substring(0, 60)
+      quien: String(d.nombre || "").substring(0, 60),
+      ea: estadoDe(decks.a),
+      eb: estadoDe(decks.b),
+      mez: Math.round(mezcla)
     });
     ultimoEnvio = Date.now();
     ultimoDeck = d;
@@ -639,6 +651,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
     if (on) {
       actual = null; pendiente = null; parar();
       for (k in decks) { decks[k].primera = true; decks[k].lastId = ""; }
+      primeraControl = true;
       irA("vDJ");
       if (sala) { anunciarDJ(sala); }
     } else {
@@ -669,6 +682,20 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       } else { marcarActividad(); cargarDeck(d, x); }
     }
     d.primera = false;
+  }
+  var ultimoControl = "", primeraControl = true;
+  function aplicarControl(sala) {
+    var c = sala.control;
+    if (!c || !c.id) { primeraControl = false; return; }
+    if (c.id === ultimoControl) { return; }
+    var primero = primeraControl;
+    ultimoControl = c.id; primeraControl = false;
+    var edad = Math.floor(Date.now() / 1000) - (c.seg || 0);
+    if (edad > 60 || (primero && edad > 15)) { return; }
+    marcarActividad();
+    if (c.accion === "rojo") { irMezcla(0, 3000); }
+    else if (c.accion === "azul") { irMezcla(100, 3000); }
+    else if (c.accion === "centro") { irMezcla(50, 1000); }
   }
   function procesarDJ(sala, datos) {
     var uidB = "", k;
@@ -739,6 +766,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
           quienClasico = (sala && sala.duenoNombre) ? sala.duenoNombre : "";
           if (esDJ) {
             modoDJ(true, sala);
+            aplicarControl(sala);
             procesarDJ(sala, datos || {});
           } else {
             modoDJ(false);
